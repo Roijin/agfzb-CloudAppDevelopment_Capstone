@@ -20,7 +20,11 @@ logger = logging.getLogger(__name__)
 # Create an `about` view to render a static about page
 # def about(request):
 # ...
-
+def about(request):
+    context = {}
+    about = "Welcome to Best Cars dealership, home to the best cars in North America. We sell domestic and imported cars at reasonable prices."
+    context['about'] = about
+    return render(request, 'djangoapp/about.html', context)
 
 # Create a `contact` view to return a static contact page
 #def contact(request):
@@ -28,7 +32,13 @@ logger = logging.getLogger(__name__)
 # Create a `login_request` view to handle sign in request
 # def login_request(request):
 # ...
-
+def contact(request):
+    context = {}
+    address = "123 Label St., Honolulu, HI 96181"
+    number = "123-4567"
+    context['address'] = address
+    context['number'] = number
+    return render(request, 'djangoapp/contact.html', context)
 # Create a `logout_request` view to handle sign out request
 # def logout_request(request):
 # ...
