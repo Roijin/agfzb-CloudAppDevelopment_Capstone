@@ -50,11 +50,9 @@ class CarDealer:
         self.st = st
         # Dealer zip
         self.zip = zip
-        self.idx = 0
 
     def __str__(self):
         return "Dealer name: " + self.full_name
-
 
 # <HINT> Create a plain Python class `DealerReview` to hold review data
 class DealerReview:

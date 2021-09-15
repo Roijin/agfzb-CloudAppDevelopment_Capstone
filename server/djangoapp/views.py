@@ -96,13 +96,13 @@ def registration_request(request):
 def get_dealerships(request):
     context = {}
     if request.method == "GET":
-        url = 'https://us-south.functions.appdomain.cloud/api/v1/web/raihanbabang9%40gmail.com_dev/Car-Dealership/Get-Dealerships'
+        url = 'https://877ec27b.us-south.apigw.appdomain.cloud/api/dealerships'
         # Get dealers from the URL
-        context = {"dealerships": restapis.get_dealers_from_cf(url)}
+        dealerships = restapis.get_dealers_from_cf(url)
         # Concat all dealer's short name
+        dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
         # Return a list of dealer short name
-        return render(request, 'djangoapp/index.html', context)
-
+        return HttpResponse(dealer_names)
 
 # Create a `get_dealer_details` view to render the reviews of a dealer
 def get_dealer_details(request, dealer_id):

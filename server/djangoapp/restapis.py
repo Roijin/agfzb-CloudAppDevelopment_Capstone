@@ -2,11 +2,12 @@ import requests
 import json
 import logging
 # import related models here
+from .models import CarDealer
 from requests.auth import HTTPBasicAuth
 from . import models
-from ibm_watson import NaturalLanguageUnderstandingV1
-from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
-from ibm_watson.natural_language_understanding_v1 import Features, SentimentOptions
+#from ibm_watson import NaturalLanguageUnderstandingV1
+#from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+#from ibm_watson.natural_language_understanding_v1 import Features, SentimentOptions
 
 logger = logging.getLogger(__name__)
 # Create a `get_request` to make HTTP GET requests
@@ -17,7 +18,8 @@ def get_request(url, **kwargs):
     print("GET from {} ".format(url))
     try:
         # Call get method of requests library with URL and parameters
-        response = requests.get(url, headers={'Content-Type': 'application/json'}, params=kwargs)
+        response = requests.get(url, headers={'Content-Type': 'application/json'},
+                                    params=kwargs)
     except:
         # If any error occurs
         print("Network exception occurred")
@@ -25,6 +27,8 @@ def get_request(url, **kwargs):
     print("With status {} ".format(status_code))
     json_data = json.loads(response.text)
     return json_data
+
+
 # Create a `post_request` to make HTTP POST requests
 def post_request(url, json_payload, **kwargs):
     json_obj = json_payload["review"]
@@ -45,17 +49,18 @@ def get_dealers_from_cf(url, **kwargs):
     json_result = get_request(url)
     if json_result:
         # Get the row list in JSON as dealers
-        dealers = json_result['entries']
+        dealers = json_result['body']
         # For each dealer object
         for dealer in dealers:
             # Get its content in `doc` object
+            dealer_doc = dealers['docs']
             # Create a CarDealer object with values in `doc` object
-            dealer_obj = models.CarDealer(address=dealer["address"], city=dealer["city"], full_name=dealer["full_name"],
-                                   id=dealer["id"], lat=dealer["lat"], long=dealer["long"],
-                                   short_name=dealer["short_name"],
-                                   st=dealer["st"], zip=dealer["zip"])
+            dealer_obj = CarDealer(address=dealer_doc["address"], city=dealer_doc["city"], full_name=dealer_doc["full_name"],
+                                   id=dealer_doc["id"], lat=dealer_doc["lat"], long=dealer_doc["long"],
+                                   short_name=dealer_doc["short_name"],
+                                   st=dealer_doc["st"], zip=dealer_doc["zip"])
             results.append(dealer_obj)
-            print('-------------------------------------------------------')
+
     return results
 
 
@@ -88,26 +93,26 @@ def get_dealer_reviews_by_id_from_cf(url, dealerId):
 
 
 # Create an `analyze_review_sentiments` method to call Watson NLU and analyze text
-def analyze_review_sentiments(text):
-    api_key = "UKgkB-otq6jxd4aQoOGJ7NnBHbQUZeWCNNyb17hEnPdx"
-    url = "https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/76c7ce01-b5b9-42d5-a1a9-9a07ba03f35b"
-    texttoanalyze= text
-    version = '2020-08-01'
-    authenticator = IAMAuthenticator(api_key)
-    natural_language_understanding = NaturalLanguageUnderstandingV1(
-    version='2020-08-01',
-    authenticator=authenticator
-    )
-    natural_language_understanding.set_service_url(url)
-    response = natural_language_understanding.analyze(
-        text=text,
-        features= Features(sentiment= SentimentOptions())
-    ).get_result()
-    print(json.dumps(response))
-    sentiment_score = str(response["sentiment"]["document"]["score"])
-    sentiment_label = response["sentiment"]["document"]["label"]
-    print(sentiment_score)
-    print(sentiment_label)
-    sentimentresult = sentiment_label
+#def analyze_review_sentiments(text):
+#    api_key = "UKgkB-otq6jxd4aQoOGJ7NnBHbQUZeWCNNyb17hEnPdx"
+#    url = "https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/76c7ce01-b5b9-42d5-a1a9-9a07ba03f35b"
+#    texttoanalyze= text
+#    version = '2020-08-01'
+#    authenticator = IAMAuthenticator(api_key)
+#    natural_language_understanding = NaturalLanguageUnderstandingV1(
+#    version='2020-08-01',
+#    authenticator=authenticator
+#    )
+#    natural_language_understanding.set_service_url(url)
+#    response = natural_language_understanding.analyze(
+#        text=text,
+#        features= Features(sentiment= SentimentOptions())
+#    ).get_result()
+#    print(json.dumps(response))
+#    sentiment_score = str(response["sentiment"]["document"]["score"])
+#    sentiment_label = response["sentiment"]["document"]["label"]
+#    print(sentiment_score)
+#    print(sentiment_label)
+#    sentimentresult = sentiment_label
     
-    return sentimentresult
+#    return sentimentresult
