@@ -19,10 +19,11 @@ def get_request(url, **kwargs):
     try:
         # Call get method of requests library with URL and parameters
         response = requests.get(url, headers={'Content-Type': 'application/json'},
-                                    params=kwargs)
+                                    params=kwargs,auth=HTTPBasicAuth('apikey', api_key)))
     except:
         # If any error occurs
         print("Network exception occurred")
+    review_obj.sentiment = analyze_review_sentiments(review_obj.review)
     status_code = response.status_code
     print("With status {} ".format(status_code))
     json_data = json.loads(response.text)
@@ -49,11 +50,12 @@ def get_dealers_from_cf(url, **kwargs):
     json_result = get_request(url)
     if json_result:
         # Get the row list in JSON as dealers
-        dealers = json_result['body']
+        list = json_result["body"]
+        dealers = list["rows"]
         # For each dealer object
         for dealer in dealers:
             # Get its content in `doc` object
-            dealer_doc = dealers['docs']
+            dealer_doc = dealer["doc"]
             # Create a CarDealer object with values in `doc` object
             dealer_obj = CarDealer(address=dealer_doc["address"], city=dealer_doc["city"], full_name=dealer_doc["full_name"],
                                    id=dealer_doc["id"], lat=dealer_doc["lat"], long=dealer_doc["long"],
@@ -69,9 +71,11 @@ def get_dealer_reviews_by_id_from_cf(url, dealerId):
     results = []
     json_result = get_request(url, dealerId=dealerId)
     if json_result:
-        reviews = json_result['entries']
+        list = json_result["body"]
+        reviews = list["docs"]
         for review in reviews:
             try:
+                
                 review_obj = models.DealerReview(name = review["name"], 
                 dealership = review["dealership"], review = review["review"], purchase=review["purchase"],
                 purchase_date = review["purchase_date"], car_make = review['car_make'],
@@ -93,26 +97,33 @@ def get_dealer_reviews_by_id_from_cf(url, dealerId):
 
 
 # Create an `analyze_review_sentiments` method to call Watson NLU and analyze text
-#def analyze_review_sentiments(text):
-#    api_key = "UKgkB-otq6jxd4aQoOGJ7NnBHbQUZeWCNNyb17hEnPdx"
-#    url = "https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/76c7ce01-b5b9-42d5-a1a9-9a07ba03f35b"
-#    texttoanalyze= text
-#    version = '2020-08-01'
-#    authenticator = IAMAuthenticator(api_key)
-#    natural_language_understanding = NaturalLanguageUnderstandingV1(
-#    version='2020-08-01',
-#    authenticator=authenticator
-#    )
-#    natural_language_understanding.set_service_url(url)
-#    response = natural_language_understanding.analyze(
-#        text=text,
-#        features= Features(sentiment= SentimentOptions())
-#    ).get_result()
-#    print(json.dumps(response))
-#    sentiment_score = str(response["sentiment"]["document"]["score"])
-#    sentiment_label = response["sentiment"]["document"]["label"]
-#    print(sentiment_score)
-#    print(sentiment_label)
-#    sentimentresult = sentiment_label
+def analyze_review_sentiments(text):
+    api_key = "UKgkB-otq6jxd4aQoOGJ7NnBHbQUZeWCNNyb17hEnPdx"
+    url = "https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/76c7ce01-b5b9-42d5-a1a9-9a07ba03f35b"
+    texttoanalyze= text
+    version = '2020-08-01'
+    authenticator = IAMAuthenticator(api_key)
+    natural_language_understanding = NaturalLanguageUnderstandingV1(
+    version='2020-08-01',
+    authenticator=authenticator
+    )
+    params = dict()
+    params["text"] = kwargs["text"]
+    params["version"] = kwargs["version"]
+    params["features"] = kwargs["features"]
+    params["return_analyzed_text"] = kwargs["return_analyzed_text"]
+    response = requests.get(url, params=params, headers={'Content-Type': 'application/json'},
+                                    auth=HTTPBasicAuth('apikey', api_key))
+    natural_language_understanding.set_service_url(url)
+    response = natural_language_understanding.analyze(
+        text=text,
+        features= Features(sentiment= SentimentOptions())
+    ).get_result()
+    print(json.dumps(response))
+    sentiment_score = str(response["sentiment"]["document"]["score"])
+    sentiment_label = response["sentiment"]["document"]["label"]
+    print(sentiment_score)
+    print(sentiment_label)
+    sentimentresult = sentiment_label
     
-#    return sentimentresult
+    return sentimentresult
