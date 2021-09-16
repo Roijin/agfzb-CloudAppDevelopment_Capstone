@@ -7,7 +7,7 @@ from requests.auth import HTTPBasicAuth
 from . import models
 from ibm_watson import NaturalLanguageUnderstandingV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
-from ibm_watson.natural_language_understanding_v1 import Features, EntitiesOptions, KeywordsOptions
+from ibm_watson.natural_language_understanding_v1 import Features, EntitiesOptions, KeywordsOptions, SentimentOptions
 
 logger = logging.getLogger(__name__)
 # Create a `get_request` to make HTTP GET requests

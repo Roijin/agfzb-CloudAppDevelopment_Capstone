@@ -101,8 +101,11 @@ def get_dealerships(request):
         dealerships = restapis.get_dealers_from_cf(url)
         # Concat all dealer's short name
         dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
+        context = {
+            "dealers" :dealerships
+        }
         # Return a list of dealer short name
-        return HttpResponse(dealer_names)
+        return render(request, 'djangoapp/index.html', context)
 
 # Create a `get_dealer_details` view to render the reviews of a dealer
 def get_dealer_details(request, dealer_id):
@@ -120,7 +123,7 @@ def get_dealer_details(request, dealer_id):
 def add_review(request, dealer_id):
     if request.method == "GET":
         dealersid = dealer_id
-        url = "https://5b93346d.us-south.apigw.appdomain.cloud/dealerships/dealer-get?dealerId={0}".format(dealersid)
+        url = "https://877ec27b.us-south.apigw.appdomain.cloud/api/review"
         # Get dealers from the URL
         context = {
             "cars": models.CarModel.objects.all(),
@@ -144,7 +147,7 @@ def add_review(request, dealer_id):
                 review["car_year"]= car.year.strftime("%Y")
             json_payload = {"review": review}
             print (json_payload)
-            url = "https://5b93346d.us-south.apigw.appdomain.cloud/dealerships/reviews/review-post"
+            url = "https://877ec27b.us-south.apigw.appdomain.cloud/api/review"
             restapis.post_request(url, json_payload, dealerId=dealer_id)
             return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
         else:
