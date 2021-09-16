@@ -5,9 +5,9 @@ import logging
 from .models import CarDealer
 from requests.auth import HTTPBasicAuth
 from . import models
-#from ibm_watson import NaturalLanguageUnderstandingV1
-#from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
-#from ibm_watson.natural_language_understanding_v1 import Features, SentimentOptions
+from ibm_watson import NaturalLanguageUnderstandingV1
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+from ibm_watson.natural_language_understanding_v1 import Features, EntitiesOptions, KeywordsOptions
 
 logger = logging.getLogger(__name__)
 # Create a `get_request` to make HTTP GET requests
@@ -19,11 +19,11 @@ def get_request(url, **kwargs):
     try:
         # Call get method of requests library with URL and parameters
         response = requests.get(url, headers={'Content-Type': 'application/json'},
-                                    params=kwargs,auth=HTTPBasicAuth('apikey', api_key)))
+                                    params=kwargs)
     except:
         # If any error occurs
         print("Network exception occurred")
-    review_obj.sentiment = analyze_review_sentiments(review_obj.review)
+    #review_obj.sentiment = analyze_review_sentiments(review_obj.review)
     status_code = response.status_code
     print("With status {} ".format(status_code))
     json_data = json.loads(response.text)
@@ -101,17 +101,14 @@ def analyze_review_sentiments(text):
     api_key = "UKgkB-otq6jxd4aQoOGJ7NnBHbQUZeWCNNyb17hEnPdx"
     url = "https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/76c7ce01-b5b9-42d5-a1a9-9a07ba03f35b"
     texttoanalyze= text
-    version = '2020-08-01'
+    version = '2021-03-25'
     authenticator = IAMAuthenticator(api_key)
     natural_language_understanding = NaturalLanguageUnderstandingV1(
-    version='2020-08-01',
+    version='2021-03-25',
     authenticator=authenticator
     )
     params = dict()
-    params["text"] = kwargs["text"]
-    params["version"] = kwargs["version"]
-    params["features"] = kwargs["features"]
-    params["return_analyzed_text"] = kwargs["return_analyzed_text"]
+    
     response = requests.get(url, params=params, headers={'Content-Type': 'application/json'},
                                     auth=HTTPBasicAuth('apikey', api_key))
     natural_language_understanding.set_service_url(url)
